@@ -3,8 +3,8 @@ import { Editor } from '@tiptap/react';
 
 // ✅ Extend TipTap Commands with the correct type
 declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    insertVariable: (options: { value: string }) => ReturnType;
+  interface Commands {
+    insertVariable: (options: { value: string }) => boolean;
   }
 }
 
@@ -44,8 +44,9 @@ export const Variable = Node.create({
     ];
   },
 
-  addCommands() {
+  addCommands(): Record<string, any> {
     return {
+      ...this.parent?.(),
       insertVariable:
         ({ value }: { value: string }) =>
         ({ editor }: { editor: Editor }) => {
@@ -53,11 +54,12 @@ export const Variable = Node.create({
             .chain()
             .focus()
             .insertContent({
-              type: 'variable', // ✅ Ensure the type matches the Node name
+              type: this.name, // Ensures the type is correct
               attrs: { value },
             })
             .run();
         },
     };
-  },
+  }
+  
 });
